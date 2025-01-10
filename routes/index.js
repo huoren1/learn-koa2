@@ -4,6 +4,7 @@ const axios = require('axios')
 const { totp } = require('otplib')
 const svgCaptcha = require('svg-captcha')
 const path = require('path')
+const User = require('../models/user')
 
 router.get('/', async (ctx, next) => {
   await ctx.render('index', {
@@ -11,20 +12,61 @@ router.get('/', async (ctx, next) => {
   })
 })
 
-router.post('/api/login', function (ctx, next) {
+router.post('/api/login', async function (ctx, next) {
   const req = ctx.request.body
   const token = jwt.sign(
     { name: req.name }, // payload
     "JWT_SECRET", // secret
     { expiresIn: 60 * 60 } // 60 * 60 s
   );
-  return ctx.body = {
-    code: "0",
-    message: "登录成功",
-    data: {
-      token
+  const checkRes = await User.checkNameAndPassword(req.name, req.password)
+  if (checkRes.code !== -1) {
+    return ctx.body = {
+      code: 1,
+      message: "登录成功",
+      data: {
+        token,
+        ...checkRes
+      }
+    };
+  } else {
+    return ctx.body = checkRes
+  }
+})
+
+router.post('/public/save', async (ctx, next) => {
+  const { name, password } = ctx.request.body
+  if (name?.length === 0) {
+    return ctx.body = {
+      success: false,
+      msg: '用户名不可为空！'
     }
-  };
+  }
+  // const findRes = await User.find({ name })
+  // if (findRes?.length) {
+  //   return ctx.body = {
+  //     success: false,
+  //     msg: '用户名已经存在，请勿重复添加'
+  //   }
+  // }
+  const user = new User({
+    name,
+    password
+  })
+
+  const isExist = await user.isExist3()
+  if (isExist) {
+    return ctx.body = {
+      success: false,
+      msg: '用户名已经存在，请勿重复添加'
+    }
+  }
+
+  const userInfo = await user.save()
+  ctx.body = {
+    success: true,
+    userInfo
+  }
 })
 
 const clientId = 'client1';

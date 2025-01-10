@@ -38,7 +38,7 @@ app.use(session({
   renew: false,  // 更新session时重置session失效时间
 }, app))
 
-app.use(jwt({ secret: 'JWT_SECRET' }).unless({ path: [/^\/public/, /\/login/, /\/callback/] }));
+app.use(jwt({ secret: 'JWT_SECRET' }).unless({ path: [/^\/public/, /\/login/, /\/callback/, /\.ico$/] }));
 
 // logger
 app.use(async (ctx, next) => {

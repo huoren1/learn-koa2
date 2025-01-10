@@ -2,47 +2,13 @@ const router = require('koa-router')()
 const User = require('../models/user')
 router.prefix('/api/users')
 
-router.post('/save', async (ctx, next) => {
-  const { name, password } = ctx.request.body
-  if (name?.length === 0) {
-    return ctx.body = {
-      success: false,
-      msg: '用户名不可为空！'
-    }
-  }
-  // const findRes = await User.find({ name })
-  // if (findRes?.length) {
-  //   return ctx.body = {
-  //     success: false,
-  //     msg: '用户名已经存在，请勿重复添加'
-  //   }
-  // }
-  const user = new User({
-    name,
-    password,
-    createTime: new Date()
-  })
-  if (!user.isExist) {
-    return ctx.body = {
-      success: false,
-      msg: '用户名已经存在，请勿重复添加'
-    }
-  }
-
-  const userInfo = await user.save()
-  ctx.body = {
-    success: true,
-    userInfo
-  }
-})
-
 router.get('/delete', async (ctx, next) => {
-  const deleteRes = await User.deleteMany({ name: '111' })
+  const deleteRes = await User.deleteMany({ name: 'zhang' })
   ctx.body = deleteRes
 })
 
 router.get('/update', async (ctx, next) => {
-  const updateRes = await User.updateMany({ name: '111' }, { name: '222' })
+  const updateRes = await User.updateMany({ name: 'zhang' }, { name: '222222' })
   ctx.body = updateRes
 })
 

@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     max: 200,
     min: 0,
+    default: 18,
     // enum: [10, 100], // 给定枚举值
   },
   password: {
@@ -33,6 +34,10 @@ const userSchema = new mongoose.Schema({
   _salt: {
     type: Number,
     default: 10
+  },
+  _isDelete: {
+    type: Boolean,
+    default: false
   },
 }, {
   statics: {
@@ -51,7 +56,7 @@ const userSchema = new mongoose.Schema({
 
 // 定义静态属性、方法
 function findUserByName(name) {
-  return this.find({ name: { $eq: name } })
+  return this.find({ name: new RegExp(name, 'i'), _isDelete: false }).sort({ _createTime: -1 }) // 模糊查询，忽略大小写
 }
 userSchema.statics.findByName2 = findUserByName
 userSchema.static('findByName3', findUserByName)
